@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Serif_Bengali } from "next/font/google";
+import { Suspense } from "react";
 
 import "./globals.css";
 
@@ -28,9 +29,13 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <Navbar />
 
-        <Marquee />
+        <Suspense fallback={null}>
+          <Marquee />
+        </Suspense>
 
-        <main className="flex-1">{children}</main>
+        <main className="flex-1">
+          {children}
+        </main>
       </body>
     </html>
   );

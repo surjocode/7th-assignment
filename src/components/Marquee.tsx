@@ -1,7 +1,8 @@
 import { getProducts } from "@/lib/api";
+import type { Product } from "@/lib/api";
 
 const Marquee = async () => {
-  let products = [];
+  let products: Product[] = [];
 
   try {
     products = await getProducts();
@@ -17,7 +18,10 @@ const Marquee = async () => {
   const tickerProducts = products.slice(0, 8);
 
   // Infinite scrolling-এর জন্য data duplicate
-  const marqueeProducts = [...tickerProducts, ...tickerProducts];
+  const marqueeProducts = [
+    ...tickerProducts,
+    ...tickerProducts,
+  ];
 
   return (
     <div className="overflow-hidden border-b border-gray-200 bg-gray-950 text-white">
@@ -33,24 +37,31 @@ const Marquee = async () => {
             {marqueeProducts.map((product, index) => {
               const change = product.change?.pct ?? 0;
 
-              const isUp = product.change?.dir === "up";
+              const isUp =
+                product.change?.dir === "up";
 
-              const isDown = product.change?.dir === "down";
+              const isDown =
+                product.change?.dir === "down";
 
-              const formattedPrice = product.today.toLocaleString("bn-BD");
+              const formattedPrice =
+                product.today.toLocaleString("bn-BD");
 
-              const formattedChange = Math.abs(change).toLocaleString("bn-BD", {
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              });
+              const formattedChange =
+                Math.abs(change).toLocaleString(
+                  "bn-BD",
+                  {
+                    minimumFractionDigits: 1,
+                    maximumFractionDigits: 1,
+                  }
+                );
 
               return (
                 <div
                   key={`${product.id}-${index}`}
-                  className="flex items-center gap-2 text-xs sm:text-sm"
+                  className="flex items-center gap-1.5 text-xs sm:text-sm"
                 >
-                  {/* Category Icon */}
-                  <span className="shrink-0 text-base sm:text-lg">
+                  {/* Product Icon */}
+                  <span className="text-base">
                     {product.categoryIcon || "🛒"}
                   </span>
 
@@ -61,40 +72,39 @@ const Marquee = async () => {
 
                   {/* Price */}
                   <span className="font-semibold text-white">
-                    {product.today.toLocaleString("bn-BD")} টাকা
+                    {formattedPrice} টাকা
                   </span>
 
                   {/* Unit */}
-                  <span className="text-gray-400">/ {product.unit}</span>
+                  <span className="text-gray-400">
+                    / {product.unit}
+                  </span>
 
-                  {/* Change */}
-                  {product.change?.dir === "up" && (
-                    <span className="font-semibold text-green-400">
-                      ▲{" "}
-                      {product.change.pct.toLocaleString("bn-BD", {
-                        minimumFractionDigits: 1,
-                        maximumFractionDigits: 1,
-                      })}
-                      %
+                  {/* Up */}
+                  {isUp && (
+                    <span className="font-medium text-green-400">
+                      ▲ {formattedChange}%
                     </span>
                   )}
 
-                  {product.change?.dir === "down" && (
-                    <span className="font-semibold text-red-400">
-                      ▼{" "}
-                      {product.change.pct.toLocaleString("bn-BD", {
-                        minimumFractionDigits: 1,
-                        maximumFractionDigits: 1,
-                      })}
-                      %
+                  {/* Down */}
+                  {isDown && (
+                    <span className="font-medium text-red-400">
+                      ▼ {formattedChange}%
                     </span>
                   )}
 
-                  {product.change?.dir === "same" && (
-                    <span className="text-gray-400">— ০.০%</span>
+                  {/* Same */}
+                  {!isUp && !isDown && (
+                    <span className="font-medium text-gray-400">
+                      — ০.০%
+                    </span>
                   )}
 
-                  <span className="mx-2 text-gray-600">•</span>
+                  {/* Separator */}
+                  <span className="ml-3 text-gray-600">
+                    •
+                  </span>
                 </div>
               );
             })}

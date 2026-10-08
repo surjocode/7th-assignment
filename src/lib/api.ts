@@ -44,32 +44,34 @@ async function fetchAPI<T>(endpoint: string): Promise<T> {
 }
 
 // Categories
-
-export async function getCategories() {
+export async function getCategories(): Promise<Category[]> {
   return fetchAPI<Category[]>("/categories");
 }
 
-export async function getCategory(slug: string) {
+export async function getCategory(
+  slug: string
+): Promise<Category> {
   return fetchAPI<Category>(
     `/categories/${encodeURIComponent(slug)}`
   );
 }
 
 // Products
-
-export async function getProducts() {
+export async function getProducts(): Promise<Product[]> {
   return fetchAPI<Product[]>("/products");
 }
 
 export async function getProductsByCategory(
   category: string
-) {
+): Promise<Product[]> {
   return fetchAPI<Product[]>(
     `/products?category=${encodeURIComponent(category)}`
   );
 }
 
-export async function getProduct(id: string) {
+export async function getProduct(
+  id: string
+): Promise<Product> {
   return fetchAPI<Product>(
     `/products/${encodeURIComponent(id)}`
   );
