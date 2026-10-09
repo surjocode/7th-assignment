@@ -1,12 +1,19 @@
 
 import Image from "next/image";
 import Link from "next/link";
-
 import CurrentDate from "@/components/CurrentDate";
 import { getCategories } from "@/lib/api";
+import UserMenu from "@/components/UserMenu";
+
+interface Category {
+  id: number | string;
+  slug: string;
+  nameBn: string;
+  icon: string;
+}
 
 const Navbar = async () => {
-  let categories = [];
+  let categories: Category[] = [];
 
   try {
     categories = await getCategories();
@@ -37,25 +44,14 @@ const Navbar = async () => {
               <h1 className="truncate text-base font-bold text-gray-900 sm:text-lg md:text-xl">
                 বাজার দর
               </h1>
+
               <CurrentDate />
             </div>
           </Link>
 
-          {/* Auth Buttons */}
+          {/* Auth Buttons / User Menu */}
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            <Link
-              href="/signin"
-              className="rounded-md px-2 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-100 sm:px-3 sm:py-2 sm:text-sm"
-            >
-              সাইন ইন
-            </Link>
-
-            <Link
-              href="/signup"
-              className="rounded-md bg-green-600 px-2.5 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-green-700 sm:px-4 sm:py-2 sm:text-sm"
-            >
-              সাইন আপ
-            </Link>
+            <UserMenu />
           </div>
         </div>
 

@@ -1,7 +1,10 @@
+
 import type { Metadata } from "next";
 import { Noto_Serif_Bengali } from "next/font/google";
 import { Suspense } from "react";
+import { ToastContainer } from "react-toastify";
 
+import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 
 import Navbar from "@/components/Navbar";
@@ -26,17 +29,25 @@ export default function RootLayout({
       lang="bn"
       className={`${notoSerifBengali.className} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-full flex-col">
         <Navbar />
 
         <Suspense fallback={null}>
           <Marquee />
         </Suspense>
 
-        <main className="flex-1">
-          {children}
-        </main>
+        <main className="flex-1">{children}</main>
+
+        <ToastContainer
+          position="top-right"
+          autoClose={2500}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          theme="light"
+        />
       </body>
     </html>
   );
 }
+
