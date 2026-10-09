@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CurrentYear from "@/components/CurrentYear";
 
 const Footer = () => {
   return (
@@ -11,7 +12,7 @@ const Footer = () => {
               href="/"
               className="inline-block text-2xl font-extrabold tracking-tight"
             >
-              Bazar<span className="text-[#8edb67]">Dor</span>
+               বাজার <span className="text-[rgb(86,243,7)]">দর</span>
             </Link>
 
             <p className="mt-3 max-w-xs text-sm leading-7 text-gray-300">
@@ -35,6 +36,7 @@ const Footer = () => {
                   হোম
                 </Link>
               </li>
+
               <li>
                 <Link
                   href="/category/chal"
@@ -43,6 +45,7 @@ const Footer = () => {
                   চাল
                 </Link>
               </li>
+
               <li>
                 <Link
                   href="/category/shobji"
@@ -51,6 +54,7 @@ const Footer = () => {
                   শাকসবজি
                 </Link>
               </li>
+
               <li>
                 <Link
                   href="/category/mach"
@@ -62,7 +66,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Information */}
+          {/* About */}
           <div>
             <h3 className="mb-4 text-base font-bold text-white">
               আমাদের সম্পর্কে
@@ -78,7 +82,7 @@ const Footer = () => {
           {/* Features */}
           <div>
             <h3 className="mb-4 text-base font-bold text-white">
-              কেন BazarDor?
+              কেন  বাজার <span className="text-[rgb(86,243,7)]">দর</span>?
             </h3>
 
             <ul className="space-y-3 text-sm text-gray-300">
@@ -94,12 +98,10 @@ const Footer = () => {
         <div className="mt-8 border-t border-white/15 pt-5">
           <div className="flex flex-col items-center justify-between gap-3 text-center text-xs leading-6 text-gray-400 sm:flex-row sm:text-left">
             <p>
-              © {new Date().getFullYear()} BazarDor। সর্বস্বত্ব সংরক্ষিত।
+              © <CurrentYear />  বাজার <span className="text-[rgb(86,243,7)]">দর</span>। সর্বস্বত্ব সংরক্ষিত।
             </p>
 
-            <p>
-              সঠিক বাজারদর, সচেতন ক্রেতা
-            </p>
+            <p>সঠিক বাজারদর, সচেতন ক্রেতা</p>
           </div>
         </div>
       </div>
