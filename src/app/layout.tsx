@@ -9,6 +9,7 @@ import "./globals.css";
 
 import Navbar from "@/components/Navbar";
 import Marquee from "@/components/Marquee";
+import Footer from "@/components/Footer";
 
 const notoSerifBengali = Noto_Serif_Bengali({
   subsets: ["latin", "bengali"],
@@ -46,6 +47,7 @@ export default function RootLayout({
           pauseOnHover
           theme="light"
         />
+        <Footer />
       </body>
     </html>
   );

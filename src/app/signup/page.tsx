@@ -99,6 +99,7 @@ export default function SignUpPage() {
       toast.error("সোশ্যাল সাইন আপ করা যায়নি");
       setSocialLoading("");
     }
+    
   };
 
   return (

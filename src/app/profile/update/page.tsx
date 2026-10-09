@@ -1,26 +1,26 @@
 
 "use client";
 
-import { useEffect, useState,  } from "react";
+import { useState, } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, LoaderCircle, Save } from "lucide-react";
 import { toast } from "react-toastify";
 import { authClient } from "@/lib/auth-client";
 
-export default function UpdateProfilePage() {
+type ProfileUpdateFormProps = {
+  initialName: string;
+  email: string;
+};
+
+function ProfileUpdateForm({
+  initialName,
+  email,
+}: ProfileUpdateFormProps) {
   const router = useRouter();
 
-  const { data: session, isPending } = authClient.useSession();
-
-  const [name, setName] = useState("");
+  const [name, setName] = useState(initialName);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (session?.user) {
-      setName(session.user.name || "");
-    }
-  }, [session?.user]);
 
   const handleSubmit = async (
     e: React.SubmitEvent<HTMLFormElement>
@@ -39,7 +39,7 @@ export default function UpdateProfilePage() {
       return;
     }
 
-    if (trimmedName === (session?.user.name || "")) {
+    if (trimmedName === initialName) {
       toast.info("আপনার নামে কোনো পরিবর্তন করা হয়নি");
       return;
     }
@@ -68,6 +68,93 @@ export default function UpdateProfilePage() {
       setSaving(false);
     }
   };
+
+  return (
+    <>
+      <section className="rounded-2xl border border-[#dfe8df] bg-[#fbfdfb] p-5 sm:p-7">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label
+              htmlFor="name"
+              className="mb-2 block text-sm font-medium text-[#263329]"
+            >
+              আপনার নাম
+            </label>
+
+            <input
+              id="name"
+              name="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoComplete="name"
+              minLength={2}
+              maxLength={100}
+              required
+              disabled={saving}
+              placeholder="আপনার নাম লিখুন"
+              className="w-full rounded-lg border border-[#dfe8df] bg-transparent px-3 py-3 text-sm text-[#263329] outline-none transition placeholder:text-gray-400 focus:border-[#078b43] focus:ring-2 focus:ring-[#078b43]/10 disabled:opacity-60"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="email"
+              className="mb-2 block text-sm font-medium text-[#263329]"
+            >
+              ইমেইল
+            </label>
+
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={email}
+              readOnly
+              className="w-full cursor-not-allowed rounded-lg border border-[#e1e9e1] bg-gray-100 px-3 py-3 text-sm text-gray-500 outline-none"
+            />
+
+            <p className="mt-2 text-xs text-gray-400">
+              এই ফর্ম থেকে ইমেইল পরিবর্তন করা যাবে না।
+            </p>
+          </div>
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#078b43] py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#067538] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {saving ? (
+              <LoaderCircle
+                size={18}
+                className="animate-spin"
+              />
+            ) : (
+              <Save size={18} />
+            )}
+
+            {saving
+              ? "আপডেট হচ্ছে..."
+              : "আপডেট সংরক্ষণ করুন"}
+          </button>
+        </form>
+      </section>
+
+      <div className="mt-6 text-center">
+        <Link
+          href="/profile"
+          className="inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-[#078b43]"
+        >
+          <ArrowLeft size={16} />
+          প্রোফাইলে ফিরে যান
+        </Link>
+      </div>
+    </>
+  );
+}
+
+export default function UpdateProfilePage() {
+  const { data: session, isPending } = authClient.useSession();
 
   if (isPending) {
     return (
@@ -116,84 +203,11 @@ export default function UpdateProfilePage() {
           </p>
         </header>
 
-        <section className="rounded-2xl border border-[#dfe8df] bg-[#fbfdfb] p-5 sm:p-7">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label
-                htmlFor="name"
-                className="mb-2 block text-sm font-medium text-[#263329]"
-              >
-                আপনার নাম
-              </label>
-
-              <input
-                id="name"
-                name="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoComplete="name"
-                minLength={2}
-                maxLength={100}
-                required
-                disabled={saving}
-                placeholder="আপনার নাম লিখুন"
-                className="w-full rounded-lg border border-[#dfe8df] bg-transparent px-3 py-3 text-sm text-[#263329] outline-none transition placeholder:text-gray-400 focus:border-[#078b43] focus:ring-2 focus:ring-[#078b43]/10 disabled:opacity-60"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block text-sm font-medium text-[#263329]"
-              >
-                ইমেইল
-              </label>
-
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={session.user.email || ""}
-                readOnly
-                className="w-full cursor-not-allowed rounded-lg border border-[#dfe8df] bg-gray-100 px-3 py-3 text-sm text-gray-500 outline-none"
-              />
-
-              <p className="mt-2 text-xs text-gray-400">
-                এই ফর্ম থেকে ইমেইল পরিবর্তন করা যাবে না।
-              </p>
-            </div>
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#078b43] py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#067538] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {saving ? (
-                <LoaderCircle
-                  size={18}
-                  className="animate-spin"
-                />
-              ) : (
-                <Save size={18} />
-              )}
-
-              {saving
-                ? "আপডেট হচ্ছে..."
-                : "আপডেট সংরক্ষণ করুন"}
-            </button>
-          </form>
-        </section>
-
-        <div className="mt-6 text-center">
-          <Link
-            href="/profile"
-            className="inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-[#078b43]"
-          >
-            <ArrowLeft size={16} />
-            প্রোফাইলে ফিরে যান
-          </Link>
-        </div>
+        <ProfileUpdateForm
+          key={session.user.id}
+          initialName={session.user.name || ""}
+          email={session.user.email || ""}
+        />
       </div>
     </main>
   );
