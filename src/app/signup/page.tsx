@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState, } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -29,9 +28,9 @@ export default function SignUpPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
-  const [socialLoading, setSocialLoading] = useState<
-    "" | "google" | "github"
-  >("");
+  const [socialLoading, setSocialLoading] = useState<"" | "google" | "github">(
+    "",
+  );
 
   const inputClass =
     "w-full rounded-lg border border-[#dfe8df] bg-[#fbfdfb] py-3 pl-10 pr-10 text-sm text-[#263329] outline-none transition placeholder:text-gray-400 focus:border-[#078b43] focus:ring-2 focus:ring-[#078b43]/10";
@@ -78,9 +77,7 @@ export default function SignUpPage() {
     }
   };
 
-  const handleSocialSignUp = async (
-    provider: "google" | "github"
-  ) => {
+  const handleSocialSignUp = async (provider: "google" | "github") => {
     setSocialLoading(provider);
 
     try {
@@ -90,16 +87,15 @@ export default function SignUpPage() {
       });
 
       if (error) {
-        toast.error(
-          error.message || "সোশ্যাল সাইন আপ করা যায়নি"
-        );
+        console.error("Social signup error:", error);
+        toast.error(error.message || "সোশ্যাল সাইন আপ করা যায়নি");
         setSocialLoading("");
       }
-    } catch {
+    } catch (error) {
+      console.error("Social signup error:", error);
       toast.error("সোশ্যাল সাইন আপ করা যায়নি");
       setSocialLoading("");
     }
-    
   };
 
   return (
@@ -210,17 +206,11 @@ export default function SignUpPage() {
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
                   aria-label={
-                    showPassword
-                      ? "পাসওয়ার্ড লুকান"
-                      : "পাসওয়ার্ড দেখুন"
+                    showPassword ? "পাসওয়ার্ড লুকান" : "পাসওয়ার্ড দেখুন"
                   }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-700"
                 >
-                  {showPassword ? (
-                    <EyeOff size={16} />
-                  ) : (
-                    <Eye size={16} />
-                  )}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
@@ -253,9 +243,7 @@ export default function SignUpPage() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowConfirmPassword((prev) => !prev)
-                  }
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
                   aria-label={
                     showConfirmPassword
                       ? "পাসওয়ার্ড লুকান"
@@ -277,13 +265,9 @@ export default function SignUpPage() {
               disabled={loading || socialLoading !== ""}
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#078b43] py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[#067538] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading && (
-                <LoaderCircle size={18} className="animate-spin" />
-              )}
+              {loading && <LoaderCircle size={18} className="animate-spin" />}
 
-              {loading
-                ? "অ্যাকাউন্ট তৈরি হচ্ছে..."
-                : "অ্যাকাউন্ট তৈরি করুন"}
+              {loading ? "অ্যাকাউন্ট তৈরি হচ্ছে..." : "অ্যাকাউন্ট তৈরি করুন"}
             </button>
           </form>
 
@@ -301,10 +285,7 @@ export default function SignUpPage() {
               className="flex w-full min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-gray-200 px-2 py-3 text-[11px] font-medium text-gray-700 transition hover:border-[#008f3c] hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:text-xs"
             >
               {socialLoading === "google" ? (
-                <LoaderCircle
-                  size={16}
-                  className="shrink-0 animate-spin"
-                />
+                <LoaderCircle size={16} className="shrink-0 animate-spin" />
               ) : (
                 <FcGoogle size={16} className="shrink-0" />
               )}
@@ -319,10 +300,7 @@ export default function SignUpPage() {
               className="flex w-full min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-gray-200 px-2 py-3 text-[11px] font-medium text-gray-700 transition hover:border-[#008f3c] hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:text-xs"
             >
               {socialLoading === "github" ? (
-                <LoaderCircle
-                  size={16}
-                  className="shrink-0 animate-spin"
-                />
+                <LoaderCircle size={16} className="shrink-0 animate-spin" />
               ) : (
                 <FaGithub size={16} className="shrink-0" />
               )}
