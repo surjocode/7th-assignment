@@ -1,8 +1,8 @@
-const BASE_URL =
-  "https://api.abcz.workers.dev/api/bazardor";
+
+const BASE_URL = "https://api.abcz.workers.dev/api/bazardor";
 
 export interface Category {
-  id: string;
+  id: string | number;
   slug: string;
   nameBn: string;
   icon: string;
@@ -29,6 +29,22 @@ export interface Product {
   change: ProductChange;
 }
 
+export interface Market {
+  name: string;
+  division?: string;
+  min?: number;
+  max?: number;
+  avg?: number;
+}
+
+export interface ProductDetails extends Product {
+  description?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  avgPrice?: number;
+  markets?: Market[];
+}
+
 async function fetchAPI<T>(endpoint: string): Promise<T> {
   const response = await fetch(`${BASE_URL}${endpoint}`, {
     next: {
@@ -37,10 +53,12 @@ async function fetchAPI<T>(endpoint: string): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new Error(`API Error: ${response.status}`);
+    throw new Error(
+      `API Error: ${response.status} ${response.statusText}`,
+    );
   }
 
-  return response.json();
+  return response.json() as Promise<T>;
 }
 
 // Categories
@@ -49,10 +67,10 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function getCategory(
-  slug: string
+  slug: string,
 ): Promise<Category> {
   return fetchAPI<Category>(
-    `/categories/${encodeURIComponent(slug)}`
+    `/categories/${encodeURIComponent(slug)}`,
   );
 }
 
@@ -62,17 +80,27 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 export async function getProductsByCategory(
-  category: string
+  category: string,
 ): Promise<Product[]> {
   return fetchAPI<Product[]>(
-    `/products?category=${encodeURIComponent(category)}`
+    `/products?category=${encodeURIComponent(category)}`,
   );
 }
 
+// Single product endpoint accepts an ID.
 export async function getProduct(
-  id: string
+  id: string | number,
 ): Promise<Product> {
   return fetchAPI<Product>(
-    `/products/${encodeURIComponent(id)}`
+    `/products/${encodeURIComponent(String(id))}`,
   );
+}
+
+// Find a product using its slug for /product/[slug].
+export async function getProductBySlug(
+  slug: string,
+): Promise<Product | undefined> {
+  const products = await getProducts();
+
+  return products.find((product) => product.slug === slug);
 }

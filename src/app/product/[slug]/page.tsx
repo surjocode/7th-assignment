@@ -1,9 +1,12 @@
+
 import { Suspense } from "react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
+
 import { auth } from "@/lib/auth";
 import { getProducts } from "@/lib/api";
+import type { Product } from "@/lib/api";
 
 interface ProductPageProps {
   params: Promise<{
@@ -11,23 +14,12 @@ interface ProductPageProps {
   }>;
 }
 
-interface MarketRow {
-  name: string;
-  division?: string;
-  min?: number;
-  max?: number;
-  avg?: number;
-}
-
-interface ProductMarketData {
-  minPrice?: number;
-  maxPrice?: number;
-  avgPrice?: number;
-  markets?: MarketRow[];
-}
-
-const formatPrice = (price?: number | null) => {
-  if (price === undefined || price === null || !Number.isFinite(price)) {
+const formatPrice = (price?: number | null): string => {
+  if (
+    price === undefined ||
+    price === null ||
+    !Number.isFinite(price)
+  ) {
     return "তথ্য নেই";
   }
 
@@ -36,15 +28,19 @@ const formatPrice = (price?: number | null) => {
   });
 };
 
-const formatMoney = (price?: number | null) => {
-  if (price === undefined || price === null || !Number.isFinite(price)) {
+const formatMoney = (price?: number | null): string => {
+  if (
+    price === undefined ||
+    price === null ||
+    !Number.isFinite(price)
+  ) {
     return "তথ্য নেই";
   }
 
   return `৳${formatPrice(price)}`;
 };
 
-const getUnitBn = (unit: string) => {
+const getUnitBn = (unit: string): string => {
   const units: Record<string, string> = {
     kg: "কেজি",
     gram: "গ্রাম",
@@ -73,20 +69,20 @@ function PriceSummaryCard({
   description: string;
   color: "green" | "red" | "dark";
 }) {
-  const priceColor = {
+  const colors = {
     green: "text-[#008F3C]",
     red: "text-red-500",
     dark: "text-[#17251C]",
   };
 
   return (
-    <div className="rounded-2xl border border-[#DFE8E1] bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:shadow-md sm:p-5">
-      <p className="text-sm font-medium text-[#718078]">{title}</p>
+    <div className="rounded-2xl border border-[#DFE8E1] bg-white p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+      <p className="text-sm font-medium text-[#718078]">
+        {title}
+      </p>
 
       <p
-        className={`mt-2 text-2xl font-bold tracking-tight sm:text-3xl ${
-          priceColor[color]
-        }`}
+        className={`mt-3 text-2xl font-bold tracking-tight sm:text-3xl ${colors[color]}`}
       >
         {formatMoney(price)}
       </p>
@@ -98,28 +94,68 @@ function PriceSummaryCard({
   );
 }
 
+function PriceHistoryCard({
+  title,
+  price,
+  description,
+  active = false,
+}: {
+  title: string;
+  price: number;
+  description: string;
+  active?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-2xl border p-4 ${
+        active
+          ? "border-[#B8DEC3] bg-[#EAF5EC]"
+          : "border-[#DFE8E1] bg-white"
+      }`}
+    >
+      <p className="text-sm text-[#718078]">{title}</p>
+
+      <p
+        className={`mt-2 text-xl font-bold ${
+          active ? "text-[#008F3C]" : "text-[#17251C]"
+        }`}
+      >
+        {formatMoney(price)}
+      </p>
+
+      <p className="mt-2 text-xs text-[#7B877F]">
+        {description}
+      </p>
+    </div>
+  );
+}
+
 function LoadingSkeleton() {
   return (
     <main className="min-h-screen bg-[#F3F8F4] px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl animate-pulse space-y-5">
         <div className="h-4 w-48 rounded bg-[#DDE7DF]" />
-
-        <div className="h-40 rounded-2xl bg-white" />
+        <div className="h-52 rounded-2xl bg-white" />
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {[1, 2, 3].map((item) => (
-            <div key={item} className="h-32 rounded-2xl bg-white" />
+            <div
+              key={item}
+              className="h-32 rounded-2xl bg-white"
+            />
           ))}
         </div>
 
-        <div className="h-80 rounded-2xl bg-white" />
+        <div className="h-56 rounded-2xl bg-white" />
       </div>
     </main>
   );
 }
 
-async function ProductDetails({ params }: ProductPageProps) {
-  // Check the Better Auth session before showing product details.
+async function ProductDetails({
+  params,
+}: ProductPageProps) {
+  // Check the Better Auth session.
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -130,60 +166,103 @@ async function ProductDetails({ params }: ProductPageProps) {
 
   const { slug } = await params;
 
-  const products = await getProducts();
-  const product = products.find((item) => item.slug === slug);
+  let products: Product[];
+
+  try {
+    products = await getProducts();
+  } catch {
+    throw new Error(
+      "পণ্যের তথ্য লোড করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    );
+  }
+
+  const product = products.find(
+    (item) => item.slug === slug,
+  );
 
   if (!product) {
     notFound();
   }
 
-  const productData = product as typeof product & ProductMarketData;
-
   const unitBn = getUnitBn(product.unit);
+
   const isUp = product.change.dir === "up";
   const isDown = product.change.dir === "down";
 
-  // Only use market information actually provided by the API.
-  const markets = productData.markets ?? [];
+  const changeColor = isUp
+    ? "text-red-600 bg-red-50"
+    : isDown
+      ? "text-[#008F3C] bg-[#E8F5EC]"
+      : "text-gray-600 bg-gray-100";
 
-  const marketMinValues = markets
-    .map((market) => market.min)
-    .filter((price): price is number => typeof price === "number");
+  const changeLabel = isUp
+    ? "দাম বেড়েছে"
+    : isDown
+      ? "দাম কমেছে"
+      : "দাম অপরিবর্তিত";
 
-  const marketMaxValues = markets
-    .map((market) => market.max)
-    .filter((price): price is number => typeof price === "number");
+  // Historical prices supplied by the API.
+  const history = [
+    {
+      title: "আজকের দাম",
+      price: product.today,
+      description: "বর্তমান বাজারদর",
+    },
+    {
+      title: "গতকালের দাম",
+      price: product.yesterday,
+      description: "এক দিন আগে",
+    },
+    {
+      title: "গত সপ্তাহের দাম",
+      price: product.lastWeek,
+      description: "সাত দিন আগে",
+    },
+    {
+      title: "গত মাসের দাম",
+      price: product.lastMonth,
+      description: "এক মাস আগের দাম",
+    },
+  ];
 
-  const marketAvgValues = markets
-    .map((market) => market.avg)
-    .filter((price): price is number => typeof price === "number");
+  // These values are derived only from the available price history.
+  // They are historical comparisons, not market-wide min/max/average.
+  const historicalPrices = [
+    product.today,
+    product.yesterday,
+    product.lastWeek,
+    product.lastMonth,
+  ].filter(
+    (price) =>
+      typeof price === "number" &&
+      Number.isFinite(price),
+  );
 
-  const minimumPrice =
-    productData.minPrice ??
-    (marketMinValues.length > 0
-      ? Math.min(...marketMinValues)
-      : undefined);
+  const historicalMin =
+    historicalPrices.length > 0
+      ? Math.min(...historicalPrices)
+      : undefined;
 
-  const maximumPrice =
-    productData.maxPrice ??
-    (marketMaxValues.length > 0
-      ? Math.max(...marketMaxValues)
-      : undefined);
+  const historicalMax =
+    historicalPrices.length > 0
+      ? Math.max(...historicalPrices)
+      : undefined;
 
-  const averagePrice =
-    productData.avgPrice ??
-    (marketAvgValues.length > 0
-      ? marketAvgValues.reduce((sum, price) => sum + price, 0) /
-        marketAvgValues.length
-      : undefined);
+  const historicalAverage =
+    historicalPrices.length > 0
+      ? historicalPrices.reduce(
+          (sum, price) => sum + price,
+          0,
+        ) / historicalPrices.length
+      : undefined;
 
   return (
-    <main className="min-h-screen bg-[#F3F8F4] px-3 py-5 sm:px-6 sm:py-8 lg:px-8">
+    <main className="min-h-screen bg-[#F3F8F4] px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
       <div className="mx-auto max-w-6xl">
         {/* Breadcrumb */}
         <nav
           aria-label="Breadcrumb"
-          className="mb-5 flex flex-wrap items-center gap-2 text-sm text-[#718078]"
+          className="mb-6 flex flex-wrap items-center gap-2 text-sm text-[#718078]"
         >
           <Link
             href="/"
@@ -208,16 +287,16 @@ async function ProductDetails({ params }: ProductPageProps) {
           </span>
         </nav>
 
-        {/* Product Header */}
+        {/* Product header */}
         <section className="rounded-2xl border border-[#DFE8E1] bg-white p-4 shadow-sm sm:p-6 lg:p-8">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-start gap-4">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#EFF7F0] text-4xl sm:h-20 sm:w-20 sm:text-5xl">
-                {product.image}
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-[#EFF7F0] text-5xl sm:h-24 sm:w-24 sm:text-6xl">
+                {product.image || product.categoryIcon || "🛒"}
               </div>
 
               <div className="min-w-0 flex-1">
-                <div className="mb-2 flex flex-wrap items-center gap-2">
+                <div className="mb-3 flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-[#E8F5EC] px-3 py-1 text-xs font-semibold text-[#008F3C]">
                     {product.categoryNameBn}
                   </span>
@@ -227,221 +306,112 @@ async function ProductDetails({ params }: ProductPageProps) {
                   </span>
                 </div>
 
-                <h1 className="text-xl font-bold leading-snug text-[#17251C] sm:text-3xl">
+                <h1 className="text-2xl font-bold leading-snug text-[#17251C] sm:text-3xl">
                   {product.nameBn}
                 </h1>
 
                 <p className="mt-2 text-sm leading-6 text-[#718078]">
-                  {product.nameBn} — আজকের দাম ও বাজারদরের তুলনা।
-                </p>
-
-                <p className="mt-3 text-sm text-[#526057]">
-                  গতকালের তুলনায় আজ দাম{" "}
-                  <span
-                    className={`font-semibold ${
-                      isUp
-                        ? "text-green-600"
-                        : isDown
-                          ? "text-red-500"
-                          : "text-gray-500"
-                    }`}
-                  >
-                    {isUp
-                      ? "বেড়েছে ▲"
-                      : isDown
-                        ? "কমেছে ▼"
-                        : "অপরিবর্তিত"}
-                  </span>
-                </p>
-              </div>
-            </div>
-
-            {/* Today's Price */}
-            <div className="flex items-center justify-between gap-4 rounded-2xl bg-[#F0F7F1] p-4 sm:min-w-48 sm:flex-col sm:items-center sm:justify-center sm:p-6">
-              <div>
-                <p className="text-sm font-medium text-[#718078]">
-                  আজকের দাম
-                </p>
-
-                <p className="mt-1 text-xs text-[#718078]">
-                  প্রতি {unitBn}
-                </p>
-              </div>
-
-              <div className="text-right sm:text-center">
-                <p className="text-3xl font-extrabold tracking-tight text-[#008F3C] sm:text-4xl">
-                  {formatMoney(product.today)}
+                  {product.nameBn}-এর আজকের দাম ও আগের
+                  দামের তুলনা দেখুন।
                 </p>
 
                 <span
-                  className={`mt-2 inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${
-                    isUp
-                      ? "bg-red-50 text-red-600"
-                      : isDown
-                        ? "bg-green-50 text-green-700"
-                        : "bg-gray-100 text-gray-600"
-                  }`}
+                  className={`mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold ${changeColor}`}
                 >
-                  {isUp ? "▲" : isDown ? "▼" : "—"}{" "}
-                  {formatPrice(product.change.pct)}%
+                  {isUp ? "▲" : isDown ? "▼" : "—"}
+                  {changeLabel}
+                  {" "}
+                  {formatPrice(Math.abs(product.change.pct))}%
                 </span>
               </div>
+            </div>
+
+            {/* Today's price */}
+            <div className="rounded-2xl bg-[#F0F7F1] p-5 sm:min-w-52 sm:text-center">
+              <p className="text-sm font-medium text-[#718078]">
+                আজকের দাম
+              </p>
+
+              <p className="mt-1 text-xs text-[#718078]">
+                প্রতি {unitBn}
+              </p>
+
+              <p className="mt-3 text-3xl font-extrabold tracking-tight text-[#008F3C] sm:text-4xl">
+                {formatMoney(product.today)}
+              </p>
             </div>
           </div>
         </section>
 
-        {/* Price Summary */}
-        <section className="mt-6">
+        {/* Price history */}
+        <section className="mt-8">
           <div className="mb-4">
-            <h2 className="text-lg font-bold text-[#17251C] sm:text-xl">
+            <h2 className="text-xl font-bold text-[#17251C]">
+              দামের ইতিহাস
+            </h2>
+
+            <p className="mt-1 text-sm text-[#718078]">
+              বিভিন্ন সময়ে {product.nameBn}-এর দাম
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {history.map((item) => (
+              <PriceHistoryCard
+                key={item.title}
+                title={item.title}
+                price={item.price}
+                description={item.description}
+                active={item.title === "আজকের দাম"}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Historical summary */}
+        <section className="mt-8">
+          <div className="mb-4">
+            <h2 className="text-xl font-bold text-[#17251C]">
               দামের সারসংক্ষেপ
             </h2>
 
             <p className="mt-1 text-sm text-[#718078]">
-              {product.nameBn} — বাজারের দামের সংক্ষিপ্ত বিবরণ
+              API থেকে পাওয়া চারটি সময়ের দামের ভিত্তিতে
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
             <PriceSummaryCard
               title="সর্বনিম্ন দাম"
-              price={minimumPrice}
-              description="বাজারগুলোর মধ্যে সর্বনিম্ন"
+              price={historicalMin}
+              description="প্রদর্শিত সময়গুলোর মধ্যে সর্বনিম্ন"
               color="green"
             />
 
             <PriceSummaryCard
               title="সর্বোচ্চ দাম"
-              price={maximumPrice}
-              description="বাজারগুলোর মধ্যে সর্বোচ্চ"
+              price={historicalMax}
+              description="প্রদর্শিত সময়গুলোর মধ্যে সর্বোচ্চ"
               color="red"
             />
 
             <PriceSummaryCard
-              title="গড় দাম"
-              price={averagePrice}
-              description={`প্রতি ${unitBn}-এর গড় বাজারদর`}
+              title="গড় দাম"
+              price={historicalAverage}
+              description="চারটি সময়ের পাওয়া দামের গড়"
               color="dark"
             />
           </div>
 
-          {!markets.length &&
-            minimumPrice === undefined &&
-            maximumPrice === undefined &&
-            averagePrice === undefined && (
-              <p className="mt-3 text-xs leading-5 text-[#718078]">
-                সর্বনিম্ন, সর্বোচ্চ ও গড় দামের তথ্য বর্তমান API response-এ
-                পাওয়া যায়নি।
-              </p>
-            )}
+          <p className="mt-3 text-xs leading-5 text-[#718078]">
+            দ্রষ্টব্য: এই সারসংক্ষেপটি আজ, গতকাল, গত সপ্তাহ
+            ও গত মাসের দামের ভিত্তিতে। এটি বিভিন্ন বাজারের
+            প্রকৃত সর্বনিম্ন, সর্বোচ্চ বা গড় দাম নয়।
+          </p>
         </section>
 
-        {/* Market-wise Price Table */}
-        <section className="mt-6 rounded-2xl border border-[#DFE8E1] bg-white p-4 shadow-sm sm:p-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-lg font-bold text-[#17251C] sm:text-xl">
-                বাজারভিত্তিক আজকের দাম
-              </h2>
-
-              <p className="mt-1 text-sm text-[#718078]">
-                বিভিন্ন বাজারে {product.nameBn}-এর দামের তুলনা
-              </p>
-            </div>
-
-            <span className="w-fit rounded-full bg-[#E8F5EC] px-3 py-1.5 text-xs font-semibold text-[#008F3C]">
-              {markets.length.toLocaleString("bn-BD")}টি বাজার
-            </span>
-          </div>
-
-          {markets.length > 0 ? (
-            <div className="mt-5 overflow-x-auto rounded-xl border border-[#DFE8E1]">
-              <table className="w-full min-w-[600px] border-collapse text-left text-sm">
-                <thead className="bg-[#F6F9F6] text-xs text-[#718078]">
-                  <tr>
-                    <th scope="col" className="px-4 py-4 font-semibold">
-                      বাজার
-                    </th>
-
-                    <th scope="col" className="px-4 py-4 font-semibold">
-                      বিভাগ
-                    </th>
-
-                    <th
-                      scope="col"
-                      className="px-4 py-4 text-right font-semibold"
-                    >
-                      সর্বনিম্ন
-                    </th>
-
-                    <th
-                      scope="col"
-                      className="px-4 py-4 text-right font-semibold"
-                    >
-                      সর্বোচ্চ
-                    </th>
-
-                    <th
-                      scope="col"
-                      className="px-4 py-4 text-right font-semibold"
-                    >
-                      গড়
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-[#DFE8E1]">
-                  {markets.map((market, index) => (
-                    <tr
-                      key={`${market.name}-${index}`}
-                      className={`transition-colors hover:bg-[#EAF5EC] ${
-                        index % 2 === 0 ? "bg-white" : "bg-[#F4F8F4]"
-                      }`}
-                    >
-                      <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#344238]">
-                        {market.name}
-                      </td>
-
-                      <td className="whitespace-nowrap px-4 py-4 text-[#718078]">
-                        {market.division || "—"}
-                      </td>
-
-                      <td className="whitespace-nowrap px-4 py-4 text-right font-medium text-[#008F3C]">
-                        {formatMoney(market.min)}
-                      </td>
-
-                      <td className="whitespace-nowrap px-4 py-4 text-right font-medium text-red-500">
-                        {formatMoney(market.max)}
-                      </td>
-
-                      <td className="whitespace-nowrap px-4 py-4 text-right font-bold text-[#17251C]">
-                        {formatMoney(market.avg)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="mt-5 rounded-xl border border-dashed border-[#D5E2D7] bg-[#F8FAF8] px-5 py-10 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#E8F5EC] text-2xl">
-                🏪
-              </div>
-
-              <h3 className="mt-4 text-base font-bold text-[#344238]">
-                বাজারভিত্তিক তথ্য পাওয়া যায়নি
-              </h3>
-
-              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#718078]">
-                বর্তমান API response-এ আলাদা বাজারের দাম পাওয়া যায়নি।
-                বাজারভিত্তিক তুলনা দেখাতে API-তে সেই তথ্য থাকতে হবে।
-              </p>
-            </div>
-          )}
-        </section>
-
-        {/* Back Navigation */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        {/* Back navigation */}
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
           <Link
             href="/"
             className="inline-flex items-center gap-2 rounded-xl border border-[#DCE6DE] bg-white px-4 py-3 text-sm font-semibold text-[#344238] transition hover:border-[#008F3C] hover:text-[#008F3C]"
@@ -451,7 +421,7 @@ async function ProductDetails({ params }: ProductPageProps) {
           </Link>
 
           <p className="text-xs leading-5 text-[#718078]">
-            সকল দাম সম্ভাব্য; বাজার অবস্থার ওপর নির্ভর করে পরিবর্তিত হয়।
+            দাম সময় ও বাজারভেদে পরিবর্তিত হতে পারে।
           </p>
         </div>
       </div>
@@ -459,7 +429,9 @@ async function ProductDetails({ params }: ProductPageProps) {
   );
 }
 
-export default function ProductPage({ params }: ProductPageProps) {
+export default function ProductPage({
+  params,
+}: ProductPageProps) {
   return (
     <Suspense fallback={<LoadingSkeleton />}>
       <ProductDetails params={params} />

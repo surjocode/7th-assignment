@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -5,7 +6,6 @@ import { Suspense } from "react";
 import CurrentDate from "@/components/CurrentDate";
 import CategoryNav from "@/components/CategoryNav";
 import UserMenu from "@/components/UserMenu";
-
 import { getCategories } from "@/lib/api";
 
 interface Category {
@@ -21,10 +21,7 @@ const Navbar = async () => {
   try {
     categories = await getCategories();
   } catch (error) {
-    console.error(
-      "Failed to fetch navbar categories:",
-      error
-    );
+    console.error("Failed to fetch navbar categories:", error);
   }
 
   return (
@@ -51,7 +48,8 @@ const Navbar = async () => {
 
             <div className="min-w-0">
               <h1 className="truncate text-base font-extrabold tracking-tight text-gray-900 sm:text-lg md:text-xl">
-                বাজার <span className="text-[rgb(86,243,7)]">দর</span>
+                বাজার{" "}
+                <span className="text-[rgb(86,243,7)]">দর</span>
               </h1>
 
               <div className="mt-0.5 text-[10px] text-gray-500 sm:text-xs">
