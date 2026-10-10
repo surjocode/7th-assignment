@@ -1,17 +1,10 @@
-
 "use client";
 
 import { useState } from "react";
-import type { SubmitEvent } from "react";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  Eye,
-  EyeOff,
-  Mail,
-  LockKeyhole,
-  LoaderCircle,
-} from "lucide-react";
+import { Eye, EyeOff, Mail, LockKeyhole, LoaderCircle } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -26,15 +19,11 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [socialLoading, setSocialLoading] =
-    useState<SocialProvider | "">("");
+  const [socialLoading, setSocialLoading] = useState<SocialProvider | "">("");
 
   const isBusy = loading || socialLoading !== "";
 
-  // Email and password sign-in
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const trimmedEmail = email.trim();
@@ -54,9 +43,7 @@ export default function SignInPage() {
       });
 
       if (result.error) {
-        toast.error(
-          result.error.message || "সাইন ইন করা যায়নি"
-        );
+        toast.error(result.error.message || "সাইন ইন করা যায়নি");
         return;
       }
 
@@ -71,10 +58,7 @@ export default function SignInPage() {
     }
   };
 
-  // Google and GitHub sign-in
-  const handleSocialSignIn = async (
-    provider: SocialProvider
-  ) => {
+  const handleSocialSignIn = async (provider: SocialProvider) => {
     setSocialLoading(provider);
 
     try {
@@ -86,10 +70,7 @@ export default function SignInPage() {
       if (result.error) {
         console.error("Social sign-in error:", result.error);
 
-        toast.error(
-          result.error.message ||
-            "সোশ্যাল সাইন ইন ব্যর্থ হয়েছে"
-        );
+        toast.error(result.error.message || "সোশ্যাল সাইন ইন ব্যর্থ হয়েছে");
 
         setSocialLoading("");
       }
@@ -103,22 +84,16 @@ export default function SignInPage() {
   return (
     <main className="min-h-screen bg-[#f0f5f1] px-4 py-10 sm:py-14">
       <div className="mx-auto max-w-md">
-        {/* Header */}
         <header className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">
-            সাইন ইন
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">সাইন ইন</h1>
 
           <p className="mt-2 text-sm leading-6 text-gray-500">
-            বিস্তারিত দাম, বাজার তুলনা ও প্রোফাইল দেখতে
-            অ্যাকাউন্টে ঢুকুন।
+            বিস্তারিত দাম, বাজার তুলনা ও প্রোফাইল দেখতে অ্যাকাউন্টে ঢুকুন।
           </p>
         </header>
 
-        {/* Sign-in card */}
         <section className="rounded-2xl border border-[#e2e8e4] bg-white p-5 shadow-sm sm:p-7">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -140,9 +115,7 @@ export default function SignInPage() {
                   autoComplete="email"
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(event) =>
-                    setEmail(event.target.value)
-                  }
+                  onChange={(event) => setEmail(event.target.value)}
                   required
                   disabled={isBusy}
                   className="w-full rounded-lg border border-[#dfe8df] bg-[#fbfdfb] py-3 pl-10 pr-3 text-sm text-[#263329] outline-none transition placeholder:text-gray-400 focus:border-[#078b43] focus:ring-2 focus:ring-[#078b43]/10 disabled:opacity-60"
@@ -150,7 +123,6 @@ export default function SignInPage() {
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -172,9 +144,7 @@ export default function SignInPage() {
                   autoComplete="current-password"
                   placeholder="আপনার পাসওয়ার্ড লিখুন"
                   value={password}
-                  onChange={(event) =>
-                    setPassword(event.target.value)
-                  }
+                  onChange={(event) => setPassword(event.target.value)}
                   required
                   disabled={isBusy}
                   className="w-full rounded-lg border border-[#dfe8df] bg-[#fbfdfb] py-3 pl-10 pr-11 text-sm text-[#263329] outline-none transition placeholder:text-gray-400 focus:border-[#078b43] focus:ring-2 focus:ring-[#078b43]/10 disabled:opacity-60"
@@ -182,57 +152,38 @@ export default function SignInPage() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowPassword((previous) => !previous)
-                  }
+                  onClick={() => setShowPassword((previous) => !previous)}
                   aria-label={
-                    showPassword
-                      ? "পাসওয়ার্ড লুকান"
-                      : "পাসওয়ার্ড দেখুন"
+                    showPassword ? "পাসওয়ার্ড লুকান" : "পাসওয়ার্ড দেখুন"
                   }
                   aria-pressed={showPassword}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-700"
                 >
-                  {showPassword ? (
-                    <EyeOff size={18} />
-                  ) : (
-                    <Eye size={18} />
-                  )}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
-            {/* Submit button */}
             <button
               type="submit"
               disabled={isBusy}
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#008f3c] py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[#007a33] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading && (
-                <LoaderCircle
-                  size={18}
-                  className="animate-spin"
-                />
-              )}
+              {loading && <LoaderCircle size={18} className="animate-spin" />}
 
               {loading ? "সাইন ইন হচ্ছে..." : "সাইন ইন"}
             </button>
           </form>
 
-          {/* Divider */}
           <div className="my-5 flex items-center gap-3">
             <div className="h-px flex-1 bg-gray-200" />
 
-            <span className="text-xs text-gray-500">
-              অথবা
-            </span>
+            <span className="text-xs text-gray-500">অথবা</span>
 
             <div className="h-px flex-1 bg-gray-200" />
           </div>
 
-          {/* Social sign-in */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {/* Google */}
             <button
               type="button"
               onClick={() => handleSocialSignIn("google")}
@@ -240,10 +191,7 @@ export default function SignInPage() {
               className="flex w-full min-w-0 items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-3 text-sm font-medium text-gray-700 transition hover:border-[#008f3c] hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {socialLoading === "google" ? (
-                <LoaderCircle
-                  size={18}
-                  className="shrink-0 animate-spin"
-                />
+                <LoaderCircle size={18} className="shrink-0 animate-spin" />
               ) : (
                 <FcGoogle size={18} className="shrink-0" />
               )}
@@ -255,7 +203,6 @@ export default function SignInPage() {
               </span>
             </button>
 
-            {/* GitHub */}
             <button
               type="button"
               onClick={() => handleSocialSignIn("github")}
@@ -263,10 +210,7 @@ export default function SignInPage() {
               className="flex w-full min-w-0 items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-3 text-sm font-medium text-gray-700 transition hover:border-[#008f3c] hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {socialLoading === "github" ? (
-                <LoaderCircle
-                  size={18}
-                  className="shrink-0 animate-spin"
-                />
+                <LoaderCircle size={18} className="shrink-0 animate-spin" />
               ) : (
                 <FaGithub size={18} className="shrink-0" />
               )}
@@ -279,7 +223,6 @@ export default function SignInPage() {
             </button>
           </div>
 
-          {/* Sign-up link */}
           <p className="mt-6 text-center text-sm text-gray-600">
             অ্যাকাউন্ট নেই?{" "}
             <Link
@@ -291,7 +234,6 @@ export default function SignInPage() {
           </p>
         </section>
 
-        {/* Home link */}
         <div className="mt-5 text-center">
           <Link
             href="/"
@@ -304,4 +246,3 @@ export default function SignInPage() {
     </main>
   );
 }
-
