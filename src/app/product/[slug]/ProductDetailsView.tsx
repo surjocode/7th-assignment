@@ -22,7 +22,7 @@ const formatMoney = (price: unknown): string => {
     return "তথ্য নেই";
   }
 
-  return `৳ ${formatPrice(price)}`;
+  return `${formatPrice(price)} টাকা`;
 };
 
 function getText(record: UnknownRecord, keys: string[]): string | undefined {
@@ -513,11 +513,6 @@ export default function ProductDetailsView({
                                   {formatMoney(displayedAverage)}
                                 </p>
 
-                                {actualAverage === undefined && (
-                                  <p className="mt-1 text-[9px] leading-4 text-[#718078]">
-                                    আনুমানিক মধ্যবর্তী দাম
-                                  </p>
-                                )}
                               </>
                             ) : (
                               <span className="text-[#718078]">তথ্য নেই</span>
@@ -547,12 +542,6 @@ export default function ProductDetailsView({
 
               <p className="mt-3 text-sm font-bold text-[#344238]">
                 বাজারভিত্তিক তথ্য পাওয়া যায়নি
-              </p>
-
-              <p className="mx-auto mt-2 max-w-md text-xs leading-6 text-[#718078]">
-                API response-এ বাজারের তালিকা পাওয়া যায়নি। API-তে বাজারভিত্তিক
-                তথ্য থাকতে হবে। শুধু frontend-এর কোড পরিবর্তন করে অনুপস্থিত তথ্য
-                তৈরি করা সম্ভব নয়।
               </p>
             </div>
           )}
@@ -605,9 +594,7 @@ export default function ProductDetailsView({
             সব পণ্যে ফিরে যান
           </Link>
 
-          <p className="text-[10px] leading-5 text-[#718078]">
-            দাম সময় ও বাজারভেদে পরিবর্তিত হতে পারে।
-          </p>
+          
         </div>
       </div>
     </main>
