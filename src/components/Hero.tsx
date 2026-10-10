@@ -39,13 +39,13 @@ const Hero = () => {
         </div>
 
         {/* Existing Hero Image — unchanged */}
-        <div className="relative h-28 w-36 shrink-0 sm:h-36 sm:w-44 md:h-40 md:w-52 lg:h-44 lg:w-56">
+        <div className="relative h-28 w-36 shrink-0 sm:h-36 sm:w-44 md:h-60 md:w-52 lg:h-64 lg:w-66">
           <Image
             src="/bazar-hero.png"
             alt="বাজারের পণ্যের ঝুড়ি"
             fill
             priority
-            sizes="(max-width: 640px) 144px, (max-width: 1024px) 208px, 224px"
+            sizes="(max-width: 780px) 144px, (max-width: 1024px) 250px, 300px"
             className="object-contain transition-transform duration-300 hover:scale-105"
           />
         </div>
