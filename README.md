@@ -4,8 +4,8 @@
 
 ## 🚀 Live Demo
 
-* **Live Website:** [Add Your Vercel Deployment URL]
-* **GitHub Repository:** [Add Your GitHub Repository URL]
+* **Live Website:** (https://7th-assignment-steel.vercel.app/)
+* **GitHub Repository:** (https://7th-assignment-steel.vercel.app/)
 
 ## ✨ Key Features
 
