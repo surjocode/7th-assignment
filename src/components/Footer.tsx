@@ -6,22 +6,20 @@ const Footer = () => {
     <footer className="mt-12 border-t-4 border-[#078b43] bg-[#17221b] text-white">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Brand */}
           <div>
             <Link
               href="/"
               className="inline-block text-2xl font-extrabold tracking-tight"
             >
-               বাজার <span className="text-[rgb(86,243,7)]">দর</span>
+              বাজার <span className="text-[rgb(86,243,7)]">দর</span>
             </Link>
 
             <p className="mt-3 max-w-xs text-sm leading-7 text-gray-300">
-              প্রতিদিনের বাজারদর জানুন সহজে। বিভিন্ন পণ্যের
-              দাম তুলনা করুন এবং সঠিক সিদ্ধান্ত নিন।
+              প্রতিদিনের বাজারদর জানুন সহজে। বিভিন্ন পণ্যের দাম তুলনা করুন এবং
+              সঠিক সিদ্ধান্ত নিন।
             </p>
           </div>
 
-          {/* Quick Links */}
           <div>
             <h3 className="mb-4 text-base font-bold text-white">
               প্রয়োজনীয় লিংক
@@ -29,10 +27,7 @@ const Footer = () => {
 
             <ul className="space-y-3 text-sm text-gray-300">
               <li>
-                <Link
-                  href="/"
-                  className="transition hover:text-[#8edb67]"
-                >
+                <Link href="/" className="transition hover:text-[#8edb67]">
                   হোম
                 </Link>
               </li>
@@ -66,23 +61,21 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* About */}
           <div>
             <h3 className="mb-4 text-base font-bold text-white">
               আমাদের সম্পর্কে
             </h3>
 
             <p className="text-sm leading-7 text-gray-300">
-              বাজার <span className="text-[rgb(86,243,7)]">দর</span>-এর লক্ষ্য হলো বাজারের পণ্যের দাম
-              সম্পর্কে স্বচ্ছ ধারণা দিয়ে ক্রেতাদের
-              সচেতন সিদ্ধান্ত নিতে সহায়তা করা।
+              বাজার <span className="text-[rgb(86,243,7)]">দর</span>-এর লক্ষ্য
+              হলো বাজারের পণ্যের দাম সম্পর্কে স্বচ্ছ ধারণা দিয়ে ক্রেতাদের সচেতন
+              সিদ্ধান্ত নিতে সহায়তা করা।
             </p>
           </div>
 
-          {/* Features */}
           <div>
             <h3 className="mb-4 text-base font-bold text-white">
-              কেন  বাজার <span className="text-[rgb(86,243,7)]">দর</span>?
+              কেন বাজার <span className="text-[rgb(86,243,7)]">দর</span>?
             </h3>
 
             <ul className="space-y-3 text-sm text-gray-300">
@@ -94,14 +87,13 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Footer */}
         <div className="mt-8 border-t border-white/15 pt-5">
           <div className="flex flex-col items-center justify-between gap-3 text-center text-xs leading-6 text-gray-400 sm:flex-row sm:text-left">
             <p>
-              © <CurrentYear />  বাজার <span className="text-[rgb(86,243,7)]">দর</span>। সর্বস্বত্ব সংরক্ষিত।
+              বাজার দর — প্রয়োজনীয় পণ্যের দাম এক নজরে।
             </p>
 
-            <p>সঠিক বাজারদর, সচেতন ক্রেতা</p>
+            <p>সকল দাম সম্ভাব্য; বাজার অবস্থার ওপর নির্ভর করে পরিবর্তিত হয়।</p>
           </div>
         </div>
       </div>

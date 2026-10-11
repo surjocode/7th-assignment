@@ -1,7 +1,4 @@
-
 const BASE_URL = "https://api.abcz.workers.dev/api/bazardor";
-
-
 
 export interface Category {
   id: string | number;
@@ -56,10 +53,13 @@ export interface ProductDetails extends Product {
   markets?: Market[];
 }
 
-// ==================== API Helper ====================
-
 async function fetchAPI<T>(endpoint: string): Promise<T> {
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
+  const url = `${BASE_URL}${endpoint}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+    },
     next: {
       revalidate: 60,
     },
@@ -67,28 +67,22 @@ async function fetchAPI<T>(endpoint: string): Promise<T> {
 
   if (!response.ok) {
     throw new Error(
-      `API Error: ${response.status} ${response.statusText}`,
+      `API Error: ${response.status} ${response.statusText} | URL: ${url}`,
     );
   }
 
   return (await response.json()) as T;
 }
 
-// ==================== Categories ====================
-
 export async function getCategories(): Promise<Category[]> {
   return fetchAPI<Category[]>("/categories");
 }
 
-export async function getCategory(
-  slug: string,
-): Promise<Category> {
-  return fetchAPI<Category>(
-    `/categories/${encodeURIComponent(slug)}`,
-  );
-}
+export async function getCategory(slug: string): Promise<Category | undefined> {
+  const categories = await getCategories();
 
-// ==================== Products ====================
+  return categories.find((category) => category.slug === slug);
+}
 
 export async function getProducts(): Promise<Product[]> {
   return fetchAPI<Product[]>("/products");
@@ -97,38 +91,27 @@ export async function getProducts(): Promise<Product[]> {
 export async function getProductsByCategory(
   category: string,
 ): Promise<Product[]> {
-  return fetchAPI<Product[]>(
-    `/products?category=${encodeURIComponent(category)}`,
-  );
+  const products = await getProducts();
+
+  return products.filter((product) => product.category === category);
 }
 
-// ==================== Single Product ====================
-
-export async function getProduct(
-  id: string | number,
-): Promise<ProductDetails> {
+export async function getProduct(id: string | number): Promise<ProductDetails> {
   return fetchAPI<ProductDetails>(
     `/products/${encodeURIComponent(String(id))}`,
   );
 }
-
-// ==================== Product By Slug ====================
 
 export async function getProductBySlug(
   slug: string,
 ): Promise<ProductDetails | undefined> {
   const products = await getProducts();
 
-  const product = products.find(
-    (item) => item.slug === slug,
-  );
+  const product = products.find((item) => item.slug === slug);
 
   if (!product) {
     return undefined;
   }
 
-  const details = await getProduct(product.id);
-
-  return details;
+  return getProduct(product.id);
 }
-

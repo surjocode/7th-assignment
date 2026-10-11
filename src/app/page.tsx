@@ -26,14 +26,9 @@ async function HomeContent() {
       <Hero />
       <PriceSection products={products} />
 
-      <section
-        id="products"
-        className="px-4 py-8 sm:px-6 lg:px-8"
-      >
+      <section id="products" className="px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
-          <h2 className="mb-5 text-xl font-bold text-[#1f2937]">
-            সব পণ্য
-          </h2>
+          <h2 className="mb-5 text-xl font-bold text-[#1f2937]">সব পণ্য</h2>
 
           <p className="mb-4 text-sm text-gray-500">
             মোট {products.length}টি পণ্য দেখানো হচ্ছে

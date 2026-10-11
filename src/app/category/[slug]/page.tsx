@@ -1,13 +1,9 @@
-
 import Link from "next/link";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import ProductGrid from "@/components/ProductGrid";
-import {
-  getCategory,
-  getProductsByCategory,
-} from "@/lib/api";
+import { getCategory, getProductsByCategory } from "@/lib/api";
 
 interface CategoryPageProps {
   params: Promise<{
@@ -42,9 +38,7 @@ function CategoryLoading() {
   );
 }
 
-async function CategoryContent({
-  params,
-}: CategoryPageProps) {
+async function CategoryContent({ params }: CategoryPageProps) {
   const { slug } = await params;
 
   let category;
@@ -71,18 +65,13 @@ async function CategoryContent({
           aria-label="Breadcrumb"
           className="mb-6 flex flex-wrap items-center gap-2 text-sm text-gray-500"
         >
-          <Link
-            href="/"
-            className="transition-colors hover:text-[#078b43]"
-          >
+          <Link href="/" className="transition-colors hover:text-[#078b43]">
             হোম
           </Link>
 
           <span aria-hidden="true">/</span>
 
-          <span className="font-medium text-[#078b43]">
-            {category.nameBn}
-          </span>
+          <span className="font-medium text-[#078b43]">{category.nameBn}</span>
         </nav>
 
         <section className="mb-8 rounded-2xl border border-green-100 bg-white p-5 shadow-sm sm:p-8">
@@ -96,8 +85,6 @@ async function CategoryContent({
                 {products.length}টি পণ্যের আজকের দাম ও পরিবর্তন
               </p>
             </div>
-
-           
           </div>
         </section>
 
@@ -130,9 +117,7 @@ async function CategoryContent({
   );
 }
 
-export default function CategoryPage({
-  params,
-}: CategoryPageProps) {
+export default function CategoryPage({ params }: CategoryPageProps) {
   return (
     <Suspense fallback={<CategoryLoading />}>
       <CategoryContent params={params} />

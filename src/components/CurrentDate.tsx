@@ -12,7 +12,7 @@ const CurrentDate = () => {
       dateStyle: "full",
     });
 
-    setDate(banglaDate );
+    setDate(banglaDate);
   }, []);
 
   return <p className="text-[10px] text-gray-500 sm:text-xs">{date}</p>;

@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState, } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, LoaderCircle, Save } from "lucide-react";
@@ -13,18 +12,13 @@ type ProfileUpdateFormProps = {
   email: string;
 };
 
-function ProfileUpdateForm({
-  initialName,
-  email,
-}: ProfileUpdateFormProps) {
+function ProfileUpdateForm({ initialName, email }: ProfileUpdateFormProps) {
   const router = useRouter();
 
   const [name, setName] = useState(initialName);
   const [saving, setSaving] = useState(false);
 
-  const handleSubmit = async (
-    e: React.SubmitEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const trimmedName = name.trim();
@@ -52,9 +46,7 @@ function ProfileUpdateForm({
       });
 
       if (error) {
-        toast.error(
-          error.message || "প্রোফাইল আপডেট করা যায়নি"
-        );
+        toast.error(error.message || "প্রোফাইল আপডেট করা যায়নি");
         return;
       }
 
@@ -125,17 +117,12 @@ function ProfileUpdateForm({
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#078b43] py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#067538] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving ? (
-              <LoaderCircle
-                size={18}
-                className="animate-spin"
-              />
+              <LoaderCircle size={18} className="animate-spin" />
             ) : (
               <Save size={18} />
             )}
 
-            {saving
-              ? "আপডেট হচ্ছে..."
-              : "আপডেট সংরক্ষণ করুন"}
+            {saving ? "আপডেট হচ্ছে..." : "আপডেট সংরক্ষণ করুন"}
           </button>
         </form>
       </section>
@@ -159,10 +146,7 @@ export default function UpdateProfilePage() {
   if (isPending) {
     return (
       <main className="flex min-h-[70vh] items-center justify-center bg-[#f0f5f0]">
-        <LoaderCircle
-          className="animate-spin text-[#078b43]"
-          size={32}
-        />
+        <LoaderCircle className="animate-spin text-[#078b43]" size={32} />
       </main>
     );
   }
@@ -171,9 +155,7 @@ export default function UpdateProfilePage() {
     return (
       <main className="flex min-h-[70vh] items-center justify-center bg-[#f0f5f0] px-4">
         <div className="w-full max-w-sm rounded-2xl border border-[#dfe8df] bg-[#fbfdfb] p-7 text-center">
-          <h1 className="text-xl font-bold text-[#263329]">
-            সাইন ইন প্রয়োজন
-          </h1>
+          <h1 className="text-xl font-bold text-[#263329]">সাইন ইন প্রয়োজন</h1>
 
           <p className="mt-2 text-sm text-gray-500">
             প্রোফাইল আপডেট করতে আগে সাইন ইন করুন।
@@ -194,9 +176,7 @@ export default function UpdateProfilePage() {
     <main className="min-h-[70vh] bg-[#f0f5f0] px-4 py-8 sm:py-12">
       <div className="mx-auto max-w-md">
         <header className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-[#263329]">
-            প্রোফাইল আপডেট
-          </h1>
+          <h1 className="text-2xl font-bold text-[#263329]">প্রোফাইল আপডেট</h1>
 
           <p className="mt-2 text-sm text-gray-500">
             আপনার অ্যাকাউন্টের তথ্য পরিবর্তন করুন।
@@ -212,4 +192,3 @@ export default function UpdateProfilePage() {
     </main>
   );
 }
-

@@ -284,7 +284,6 @@ export default function ProductDetailsView({
   return (
     <main className="min-h-screen bg-[#F0F6F1] px-3 py-4 sm:px-5 sm:py-6">
       <div className="mx-auto max-w-5xl space-y-4">
-        {/* Breadcrumb */}
         <nav
           aria-label="Breadcrumb"
           className="flex flex-wrap items-center gap-2 text-xs text-[#718078]"
@@ -306,16 +305,12 @@ export default function ProductDetailsView({
 
           <span className="font-semibold text-[#26352B]">{product.nameBn}</span>
         </nav>
-        {/* Compact product information card */}
 
-        {/* Compact product information card */}
         <section className="rounded-xl border border-[#E2EBE4] bg-white px-3 py-3 shadow-sm sm:px-4">
           <div className="flex items-center justify-between gap-3">
-            {/* Product image and information */}
             <div className="flex min-w-0 items-center gap-3">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#F0F6F1] text-2xl sm:h-14 sm:w-14">
                 {isImageUrl(imageValue) ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={imageValue}
                     alt={product.nameBn}
@@ -347,7 +342,6 @@ export default function ProductDetailsView({
               </div>
             </div>
 
-            {/* Current price */}
             <div className="min-w-[96px] shrink-0 rounded-xl bg-[#F3F7F3] px-3 py-3 text-center sm:min-w-[120px]">
               <p className="text-[10px] font-medium text-[#718078]">
                 আজকের দাম
@@ -411,7 +405,7 @@ export default function ProductDetailsView({
             />
           </div>
         </section>
-        {/* Market prices table */}
+
         <section className="overflow-hidden rounded-xl border border-[#E2EBE4] bg-white shadow-sm">
           <div className="px-4 pb-4 pt-5 sm:px-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -512,7 +506,6 @@ export default function ProductDetailsView({
                                 <p className="font-semibold text-[#26352B]">
                                   {formatMoney(displayedAverage)}
                                 </p>
-
                               </>
                             ) : (
                               <span className="text-[#718078]">তথ্য নেই</span>
@@ -546,7 +539,7 @@ export default function ProductDetailsView({
             </div>
           )}
         </section>
-        {/* Price history */}
+
         <section className="rounded-xl border border-[#E2EBE4] bg-white p-4 shadow-sm sm:p-5">
           <h2 className="mb-4 text-base font-bold text-[#26352B]">
             আগের দামের ইতিহাস
@@ -584,7 +577,7 @@ export default function ProductDetailsView({
             ))}
           </div>
         </section>
-        {/* Back link */}
+
         <div className="flex flex-wrap items-center justify-between gap-3 py-2">
           <Link
             href="/"
@@ -593,8 +586,6 @@ export default function ProductDetailsView({
             <span aria-hidden="true">←</span>
             সব পণ্যে ফিরে যান
           </Link>
-
-          
         </div>
       </div>
     </main>

@@ -1,8 +1,6 @@
-
 const SkeletonCard = () => {
   return (
     <div className="rounded-2xl border border-[#e5eee7] bg-white p-4 shadow-sm">
-      {/* Product Header */}
       <div className="flex items-center gap-3">
         <div className="h-12 w-12 animate-pulse rounded-xl bg-green-100" />
 
@@ -12,10 +10,8 @@ const SkeletonCard = () => {
         </div>
       </div>
 
-      {/* Divider */}
       <div className="my-4 h-px bg-gray-100" />
 
-      {/* Product Price */}
       <div className="flex items-end justify-between gap-3">
         <div>
           <div className="h-3 w-20 animate-pulse rounded bg-gray-100" />

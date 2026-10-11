@@ -3,13 +3,14 @@ import type { Metadata } from "next";
 import { Noto_Serif_Bengali } from "next/font/google";
 import { Suspense } from "react";
 import { ToastContainer } from "react-toastify";
-
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 
 import Navbar from "@/components/Navbar";
 import Marquee from "@/components/Marquee";
 import Footer from "@/components/Footer";
+import SocialLoginToast from "@/components/SocialLoginToast";
+
 
 const notoSerifBengali = Noto_Serif_Bengali({
   subsets: ["latin", "bengali"],
@@ -31,17 +32,19 @@ export default function RootLayout({
       className={`${notoSerifBengali.className} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+      
         <Navbar />
 
         <Suspense fallback={null}>
           <Marquee />
+          <SocialLoginToast />
         </Suspense>
 
         <main className="flex-1">{children}</main>
 
         <ToastContainer
           position="top-right"
-          autoClose={2500}
+          autoClose={3000}
           newestOnTop
           closeOnClick
           pauseOnHover

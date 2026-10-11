@@ -3,8 +3,11 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+
 import { authClient } from "@/lib/auth-client";
+
 import {
   ChevronDown,
   UserRound,
@@ -14,8 +17,12 @@ import {
 
 function UserMenuContent() {
   const pathname = usePathname();
+  const router = useRouter();
+
   const { data: session, isPending } = authClient.useSession();
+
   const [isOpen, setIsOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   if (isPending) {
     return (
@@ -26,6 +33,34 @@ function UserMenuContent() {
   }
 
   const user = session?.user;
+
+  const handleSignOut = async () => {
+    if (isSigningOut) return;
+
+    setIsSigningOut(true);
+
+    try {
+      const { error } = await authClient.signOut();
+
+      if (error) {
+        toast.error(error.message || "লগআউট করা যায়নি");
+        setIsSigningOut(false);
+        return;
+      }
+
+      setIsOpen(false);
+
+      toast.success("সফলভাবে লগআউট হয়েছে!");
+
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Sign-out error:", error);
+
+      toast.error("লগআউট করতে সমস্যা হয়েছে");
+      setIsSigningOut(false);
+    }
+  };
 
   if (user) {
     return (
@@ -76,6 +111,7 @@ function UserMenuContent() {
                 <p className="truncate text-sm font-semibold text-gray-900">
                   {user.name || "User"}
                 </p>
+
                 <p className="truncate text-xs text-gray-500">
                   {user.email}
                 </p>
@@ -103,19 +139,13 @@ function UserMenuContent() {
 
               <button
                 type="button"
-                onClick={async () => {
-                  await authClient.signOut({
-                    fetchOptions: {
-                      onSuccess: () => {
-                        window.location.href = "/";
-                      },
-                    },
-                  });
-                }}
-                className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-red-600 transition hover:bg-red-50"
+                onClick={handleSignOut}
+                disabled={isSigningOut}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <LogOut size={17} />
-                সাইন আউট
+
+                {isSigningOut ? "লগআউট হচ্ছে..." : "সাইন আউট"}
               </button>
             </div>
           </>
@@ -166,3 +196,4 @@ export default function UserMenu() {
     </Suspense>
   );
 }
+

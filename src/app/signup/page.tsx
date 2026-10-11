@@ -1,8 +1,10 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
 import {
   Eye,
   EyeOff,
@@ -11,10 +13,14 @@ import {
   Mail,
   LockKeyhole,
 } from "lucide-react";
+
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
+
 import { toast } from "react-toastify";
-import { signIn, signUp } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
+
+type SocialProvider = "google" | "github";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -25,21 +31,29 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState(false);
 
   const [loading, setLoading] = useState(false);
-  const [socialLoading, setSocialLoading] = useState<"" | "google" | "github">(
-    "",
-  );
+  const [socialLoading, setSocialLoading] =
+    useState<SocialProvider | "">("");
 
   const inputClass =
-    "w-full rounded-lg border border-[#dfe8df] bg-[#fbfdfb] py-3 pl-10 pr-10 text-sm text-[#263329] outline-none transition placeholder:text-gray-400 focus:border-[#078b43] focus:ring-2 focus:ring-[#078b43]/10";
+    "w-full rounded-lg border border-[#dfe8df] bg-[#fbfdfb] py-3 pl-10 pr-10 text-sm text-[#263329] outline-none transition placeholder:text-gray-400 focus:border-[#078b43] focus:ring-2 focus:ring-[#078b43]/10 disabled:opacity-60";
 
+  const isBusy = loading || socialLoading !== "";
+
+  // Email and password signup
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (name.trim().length < 2) {
       toast.error("কমপক্ষে ২ অক্ষরের নাম লিখুন");
+      return;
+    }
+
+    if (!email.trim()) {
+      toast.error("ইমেইল লিখুন");
       return;
     }
 
@@ -56,43 +70,66 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      const { error } = await signUp.email({
+      const { error } = await authClient.signUp.email({
         name: name.trim(),
         email: email.trim(),
         password,
       });
 
       if (error) {
-        toast.error(error.message || "অ্যাকাউন্ট তৈরি করা যায়নি");
+        toast.error(
+          error.message || "অ্যাকাউন্ট তৈরি করা যায়নি"
+        );
         return;
       }
 
       toast.success("অ্যাকাউন্ট তৈরি হয়েছে!");
+
       router.push("/");
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error("Signup error:", error);
       toast.error("সমস্যা হয়েছে। আবার চেষ্টা করুন।");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSocialSignUp = async (provider: "google" | "github") => {
+  // Google and GitHub signup
+  const handleSocialSignUp = async (
+    provider: SocialProvider
+  ) => {
+    if (isBusy) return;
+
     setSocialLoading(provider);
 
     try {
-      const { error } = await signIn.social({
+      // OAuth redirect-এর আগে provider সংরক্ষণ
+      sessionStorage.setItem(
+        "social-login-pending",
+        provider
+      );
+
+      const { error } = await authClient.signIn.social({
         provider,
-        callbackURL: "/",
+        callbackURL: "/?auth=success",
+        errorCallbackURL: "/signup?auth=error",
       });
 
       if (error) {
-        console.error("Social signup error:", error);
-        toast.error(error.message || "সোশ্যাল সাইন আপ করা যায়নি");
+        sessionStorage.removeItem("social-login-pending");
+
+        toast.error(
+          error.message || "সোশ্যাল সাইন আপ করা যায়নি"
+        );
+
         setSocialLoading("");
       }
     } catch (error) {
       console.error("Social signup error:", error);
+
+      sessionStorage.removeItem("social-login-pending");
+
       toast.error("সোশ্যাল সাইন আপ করা যায়নি");
       setSocialLoading("");
     }
@@ -117,6 +154,7 @@ export default function SignUpPage() {
 
         <section className="rounded-xl border border-[#dfe8df] bg-[#fbfdfb] p-5 shadow-sm sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-3.5">
+            {/* Name */}
             <div>
               <label
                 htmlFor="name"
@@ -137,16 +175,18 @@ export default function SignUpPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="যেমন: রহিম উদ্দিন"
+                  placeholder="যেমন: আপনার নাম"
                   autoComplete="name"
                   minLength={2}
                   maxLength={100}
                   required
+                  disabled={isBusy}
                   className={inputClass}
                 />
               </div>
             </div>
 
+            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -170,11 +210,13 @@ export default function SignUpPage() {
                   placeholder="you@example.com"
                   autoComplete="email"
                   required
+                  disabled={isBusy}
                   className={inputClass}
                 />
               </div>
             </div>
 
+            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -199,22 +241,33 @@ export default function SignUpPage() {
                   autoComplete="new-password"
                   minLength={8}
                   required
+                  disabled={isBusy}
                   className={inputClass}
                 />
 
                 <button
                   type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  aria-label={
-                    showPassword ? "পাসওয়ার্ড লুকান" : "পাসওয়ার্ড দেখুন"
+                  onClick={() =>
+                    setShowPassword((prev) => !prev)
                   }
+                  aria-label={
+                    showPassword
+                      ? "পাসওয়ার্ড লুকান"
+                      : "পাসওয়ার্ড দেখুন"
+                  }
+                  aria-pressed={showPassword}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-700"
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? (
+                    <EyeOff size={16} />
+                  ) : (
+                    <Eye size={16} />
+                  )}
                 </button>
               </div>
             </div>
 
+            {/* Confirm Password */}
             <div>
               <label
                 htmlFor="confirmPassword"
@@ -232,23 +285,31 @@ export default function SignUpPage() {
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
+                  type={
+                    showConfirmPassword ? "text" : "password"
+                  }
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={(e) =>
+                    setConfirmPassword(e.target.value)
+                  }
                   placeholder="আবার পাসওয়ার্ড লিখুন"
                   autoComplete="new-password"
                   required
+                  disabled={isBusy}
                   className={inputClass}
                 />
 
                 <button
                   type="button"
-                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  onClick={() =>
+                    setShowConfirmPassword((prev) => !prev)
+                  }
                   aria-label={
                     showConfirmPassword
                       ? "পাসওয়ার্ড লুকান"
                       : "পাসওয়ার্ড দেখুন"
                   }
+                  aria-pressed={showConfirmPassword}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-700"
                 >
                   {showConfirmPassword ? (
@@ -260,55 +321,88 @@ export default function SignUpPage() {
               </div>
             </div>
 
+            {/* Signup Button */}
             <button
               type="submit"
-              disabled={loading || socialLoading !== ""}
+              disabled={isBusy}
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#078b43] py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[#067538] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading && <LoaderCircle size={18} className="animate-spin" />}
+              {loading && (
+                <LoaderCircle
+                  size={18}
+                  className="animate-spin"
+                />
+              )}
 
-              {loading ? "অ্যাকাউন্ট তৈরি হচ্ছে..." : "অ্যাকাউন্ট তৈরি করুন"}
+              {loading
+                ? "অ্যাকাউন্ট তৈরি হচ্ছে..."
+                : "অ্যাকাউন্ট তৈরি করুন"}
             </button>
           </form>
 
+          {/* Divider */}
           <div className="my-4 flex items-center gap-3">
             <div className="h-px flex-1 bg-gray-200" />
-            <span className="text-xs text-gray-500">অথবা</span>
+            <span className="text-xs text-gray-500">
+              অথবা
+            </span>
             <div className="h-px flex-1 bg-gray-200" />
           </div>
 
+          {/* Social Signup */}
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <button
               type="button"
               onClick={() => handleSocialSignUp("google")}
-              disabled={loading || socialLoading !== ""}
+              disabled={isBusy}
               className="flex w-full min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-gray-200 px-2 py-3 text-[11px] font-medium text-gray-700 transition hover:border-[#008f3c] hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:text-xs"
             >
               {socialLoading === "google" ? (
-                <LoaderCircle size={16} className="shrink-0 animate-spin" />
+                <LoaderCircle
+                  size={16}
+                  className="shrink-0 animate-spin"
+                />
               ) : (
-                <FcGoogle size={16} className="shrink-0" />
+                <FcGoogle
+                  size={16}
+                  className="shrink-0"
+                />
               )}
 
-              <span>Google দিয়ে চালিয়ে যান</span>
+              <span>
+                {socialLoading === "google"
+                  ? "অপেক্ষা করুন..."
+                  : "Google দিয়ে চালিয়ে যান"}
+              </span>
             </button>
 
             <button
               type="button"
               onClick={() => handleSocialSignUp("github")}
-              disabled={loading || socialLoading !== ""}
+              disabled={isBusy}
               className="flex w-full min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-gray-200 px-2 py-3 text-[11px] font-medium text-gray-700 transition hover:border-[#008f3c] hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:text-xs"
             >
               {socialLoading === "github" ? (
-                <LoaderCircle size={16} className="shrink-0 animate-spin" />
+                <LoaderCircle
+                  size={16}
+                  className="shrink-0 animate-spin"
+                />
               ) : (
-                <FaGithub size={16} className="shrink-0" />
+                <FaGithub
+                  size={16}
+                  className="shrink-0"
+                />
               )}
 
-              <span>GitHub দিয়ে চালিয়ে যান</span>
+              <span>
+                {socialLoading === "github"
+                  ? "অপেক্ষা করুন..."
+                  : "GitHub দিয়ে চালিয়ে যান"}
+              </span>
             </button>
           </div>
 
+          {/* Signin Link */}
           <p className="mt-4 text-center text-xs text-gray-600">
             অ্যাকাউন্ট আছে?{" "}
             <Link
@@ -320,6 +414,7 @@ export default function SignUpPage() {
           </p>
         </section>
 
+        {/* Home Link */}
         <Link
           href="/"
           className="mt-5 flex items-center justify-center gap-1 text-xs text-gray-500 transition hover:text-[#078b43]"

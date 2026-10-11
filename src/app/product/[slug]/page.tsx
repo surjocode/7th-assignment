@@ -1,4 +1,3 @@
-
 import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
@@ -35,10 +34,7 @@ function ProductLoading() {
   );
 }
 
-async function ProductPageContent({
-  params,
-}: ProductPageProps) {
-  // Check authentication inside Suspense.
+async function ProductPageContent({ params }: ProductPageProps) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -68,12 +64,10 @@ async function ProductPageContent({
   return <ProductDetailsView product={product} />;
 }
 
-export default function ProductPage({
-  params,
-}: ProductPageProps) {
- return (
-  <Suspense fallback={<ProductLoading />}>
-    <ProductPageContent params={params} />
-  </Suspense>
-);
+export default function ProductPage({ params }: ProductPageProps) {
+  return (
+    <Suspense fallback={<ProductLoading />}>
+      <ProductPageContent params={params} />
+    </Suspense>
+  );
 }

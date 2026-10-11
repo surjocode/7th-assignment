@@ -35,14 +35,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
       href={`/product/${product.slug}`}
       className="group block rounded-xl border border-gray-200 bg-white px-3 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#008f3c]/30 hover:shadow-sm"
     >
-      {/* Top */}
       <div className="flex items-center gap-2">
-        {/* Icon */}
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#f3f8f4] text-lg">
           {product.image}
         </div>
 
-        {/* Name */}
         <div className="min-w-0">
           <h3 className="truncate text-sm font-bold text-gray-800">
             {product.nameBn}
@@ -52,9 +49,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </div>
       </div>
 
-      {/* Bottom */}
       <div className="mt-4 flex items-end justify-between">
-        {/* Price */}
         <div>
           <p className="text-[10px] text-gray-500">আজকের দাম</p>
 
@@ -66,7 +61,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </p>
         </div>
 
-        {/* Change */}
         <span
           className={`rounded-full px-2 py-1 text-[9px] font-semibold ${
             isUp
