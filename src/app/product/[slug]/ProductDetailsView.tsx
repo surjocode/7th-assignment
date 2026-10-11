@@ -332,7 +332,7 @@ export default function ProductDetailsView({
                 </h1>
 
                 <p className="mt-0.5 text-[10px] text-[#718078] sm:text-xs">
-                  {product.categoryNameBn} · প্রতি {unitBn}
+                  {product.categoryNameBn}·প্রতি {unitBn}
                 </p>
 
                 <p className="mt-1 text-[9px] leading-4 text-[#344238] sm:text-xs">

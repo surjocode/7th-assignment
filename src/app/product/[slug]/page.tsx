@@ -15,14 +15,21 @@ interface ProductPageProps {
   }>;
 }
 
-function LoadingSkeleton() {
+function ProductLoading() {
   return (
-    <main className="min-h-screen bg-[#F0F6F1] px-3 py-5 sm:px-5">
-      <div className="mx-auto max-w-5xl animate-pulse space-y-4">
-        <div className="h-4 w-40 rounded bg-[#DDE7DF]" />
-        <div className="h-28 rounded-xl bg-white" />
-        <div className="h-40 rounded-xl bg-white" />
-        <div className="h-64 rounded-xl bg-white" />
+    <main className="mx-auto min-h-screen max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mb-6 h-4 w-48 animate-pulse rounded bg-gray-200" />
+
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div className="min-h-72 animate-pulse rounded-2xl bg-gray-200 sm:min-h-96" />
+
+        <div className="space-y-5">
+          <div className="h-8 w-3/4 animate-pulse rounded bg-gray-200" />
+          <div className="h-5 w-1/2 animate-pulse rounded bg-gray-200" />
+          <div className="h-28 animate-pulse rounded-2xl bg-gray-200" />
+          <div className="h-16 animate-pulse rounded-2xl bg-gray-200" />
+          <div className="h-40 animate-pulse rounded-2xl bg-gray-200" />
+        </div>
       </div>
     </main>
   );
@@ -31,6 +38,7 @@ function LoadingSkeleton() {
 async function ProductPageContent({
   params,
 }: ProductPageProps) {
+  // Check authentication inside Suspense.
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -45,7 +53,9 @@ async function ProductPageContent({
 
   try {
     product = await getProductBySlug(slug);
-  } catch {
+  } catch (error) {
+    console.error("Failed to load product:", error);
+
     throw new Error(
       "পণ্যের তথ্য লোড করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।",
     );
@@ -61,9 +71,9 @@ async function ProductPageContent({
 export default function ProductPage({
   params,
 }: ProductPageProps) {
-  return (
-    <Suspense fallback={<LoadingSkeleton />}>
-      <ProductPageContent params={params} />
-    </Suspense>
-  );
+ return (
+  <Suspense fallback={<ProductLoading />}>
+    <ProductPageContent params={params} />
+  </Suspense>
+);
 }
